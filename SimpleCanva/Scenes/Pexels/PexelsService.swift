@@ -13,19 +13,23 @@ nonisolated struct PexelsPhoto: Decodable, Sendable {
         let id: Int
         let src: PhotoSRC
         let alt: String
+        let width: Int
+        let height: Int
         
         enum CodingKeys: CodingKey {
             case id
             case src
             case alt
+            case width
+            case height
         }
     }
     
     struct PhotoSRC: Decodable, Sendable {
-        let small: String
+        let url: String
         
-        enum CodingKeys: CodingKey {
-            case small
+        enum CodingKeys: String, CodingKey {
+            case url = "small"
         }
     }
 }
