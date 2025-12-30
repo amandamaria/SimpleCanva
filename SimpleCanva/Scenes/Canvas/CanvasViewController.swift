@@ -44,6 +44,7 @@ final class CanvasViewController: UIViewController {
         setupHierarchy()
         setupConstraints()
         setupActions()
+        setupCanvasGestures()
     }
     
 }
@@ -82,6 +83,32 @@ private extension CanvasViewController {
     func setupActions() {
         addItemButton.addTarget(self, action: #selector(didTapAddButton), for: .touchUpInside)
     }
+    
+    func setupCanvasGestures() {
+        // Tap on canvas
+        let tapOutside = UITapGestureRecognizer(target: self, action: #selector(handleCanvasTap))
+        // Do not cancel other gestures
+        tapOutside.cancelsTouchesInView = false
+        canvasView.addGestureRecognizer(tapOutside)
+    }
+
+    @objc private func handleCanvasTap(_ gesture: UITapGestureRecognizer) {
+        // Identify when the gestures was on canvas (not on subview/imagem)
+        let location = gesture.location(in: canvasView)
+        let hitView = canvasView.hitTest(location, with: nil)
+        
+        if hitView == canvasView {
+            deselectAllItems()
+        }
+    }
+
+    private func deselectAllItems() {
+        canvasView.subviews.forEach { view in
+            if let item = view as? DraggableImageView {
+                item.isSelected = false
+            }
+        }
+    }
 }
 
 private extension CanvasViewController {
@@ -98,7 +125,6 @@ extension CanvasViewController: ImagePickerDelegate {
             guard let data = data, let image = UIImage(data: data), let self = self else { return }
             
             DispatchQueue.main.async {
-                // Add selected image on canvas
                 let visibleRect = self.scrollView.contentOffset
                 let itemSize: CGFloat = 150
                 

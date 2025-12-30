@@ -63,4 +63,8 @@ final class DraggableImageView: UIImageView, UIGestureRecognizerDelegate {
         // Traz para a frente de todos os outros
         superview?.bringSubviewToFront(self)
     }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            return true
+    }
 }
