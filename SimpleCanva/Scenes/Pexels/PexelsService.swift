@@ -46,7 +46,7 @@ protocol PexelsServicing {
 final class PexelsService: PexelsServicing {
     
     func loadData(_ completion: @escaping (Result<PexelsPhoto, ApiError>) -> Void) {
-        let urlString = "https://api.pexels.com/v1/curated?per_page=15"
+        let urlString = "https://api.pexels.com/v1/curated?per_page=30"
         guard let url = URL(string: urlString) else { return }
         var request = URLRequest(url: url)
         request.addValue("0rWBGhCRoFiVbbq4duycTLqsvROdrjKqHdGkciUBYdubEU21DoqNC6yY",
