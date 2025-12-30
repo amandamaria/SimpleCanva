@@ -4,6 +4,7 @@ final class PexelsViewController: UIViewController{
     private let tableView = UITableView()
     private let interactor: PexelsInteracting
     private var photos: [PexelsPhoto.PexelsPhotoData] = []
+    weak var delegate: ImagePickerDelegate?
     
     init(interactor: PexelsInteracting) {
         self.interactor = interactor
@@ -35,8 +36,15 @@ extension PexelsViewController: UITableViewDataSource, UITableViewDelegate {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: PhotoCell.identifier, for: indexPath) as? PhotoCell else {
                     return UITableViewCell()
                 }
+        cell.delegate = delegate
         cell.configure(with: photos[indexPath.row])
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedUrl = photos[indexPath.row].src.small
+        delegate?.didSelect(image: selectedUrl)
+        dismiss(animated: true)
     }
 }
 

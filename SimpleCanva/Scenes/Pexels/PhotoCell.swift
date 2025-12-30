@@ -1,8 +1,13 @@
 internal import UIKit
 
+protocol ImagePickerDelegate: AnyObject {
+    func didSelect(image src: String)
+}
+
 final class PhotoCell: UITableViewCell {
     static let identifier = "PhotoCell"
     private var downloadTask: URLSessionDataTask?
+    weak var delegate: ImagePickerDelegate?
 
     private let photoImageView: UIImageView = {
         let iv = UIImageView()

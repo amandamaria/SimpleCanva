@@ -12,6 +12,7 @@ final class CanvasPresenter: CanvasPresenting {
         let interactor = PexelsInteractor(presenter: presenter)
         let pickerVC = PexelsViewController(interactor: interactor)
         presenter.viewController = pickerVC
+        pickerVC.delegate = self.viewController
         
         // Open Bottom Sheet
         if let sheet = pickerVC.sheetPresentationController {
