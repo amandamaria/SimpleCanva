@@ -22,7 +22,24 @@ final class CanvasViewController: UIViewController {
     }()
     
     private let addItemButton: UIButton = {
-        let button = UIButton(type: .contactAdd)
+        let button = UIButton(type: .system)
+            
+        // Configuração do ícone (SF Symbols)
+        let config = UIImage.SymbolConfiguration(pointSize: 24, weight: .bold)
+        let image = UIImage(systemName: "plus", withConfiguration: config)
+        button.setImage(image, for: .normal)
+        
+        // Cores e Estilo
+        button.tintColor = .white
+        button.backgroundColor = .systemBlue
+        
+        // Formato Circular e Sombra
+        button.layer.cornerRadius = 28 // Metade da largura/altura (56/2)
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOffset = CGSize(width: 0, height: 4)
+        button.layer.shadowRadius = 5
+        button.layer.shadowOpacity = 0.3
+        
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -75,8 +92,10 @@ extension CanvasViewController: UIScrollViewDelegate {
 private extension CanvasViewController {
     func setupHierarchy() {
         view.addSubview(scrollView)
-        scrollView.addSubview(addItemButton)
         scrollView.addSubview(canvasView)
+        
+        view.addSubview(addItemButton)
+        view.bringSubviewToFront(addItemButton)
     }
     
     func setupConstraints() {
@@ -92,8 +111,11 @@ private extension CanvasViewController {
             canvasView.heightAnchor.constraint(equalTo: scrollView.heightAnchor, multiplier: 0.5),
             canvasView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            addItemButton.bottomAnchor.constraint(equalTo: canvasView.topAnchor, constant: -20),
-            addItemButton.trailingAnchor.constraint(equalTo: canvasView.trailingAnchor, constant: -20),
+            addItemButton.widthAnchor.constraint(equalToConstant: 56),
+            addItemButton.heightAnchor.constraint(equalToConstant: 56),
+            
+            addItemButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
+            addItemButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
         ])
     }
     
