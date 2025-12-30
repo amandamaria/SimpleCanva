@@ -15,7 +15,14 @@ final class PexelsViewController: UIViewController{
     }
     
     override func viewDidLoad() {
+        interactor.loadData()
         setupTableView()
+    }
+    
+    func showData(_ photos: [PexelsPhoto.PexelsPhotoData]) {
+        self.photos = photos
+        
+        tableView.reloadData()
     }
 }
 
@@ -25,7 +32,11 @@ extension PexelsViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return UITableViewCell()
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: PhotoCell.identifier, for: indexPath) as? PhotoCell else {
+                    return UITableViewCell()
+                }
+        cell.configure(with: photos[indexPath.row])
+        return cell
     }
 }
 

@@ -42,6 +42,23 @@ protocol PexelsServicing {
 final class PexelsService: PexelsServicing {
     
     func loadData(_ completion: @escaping (Result<PexelsPhoto, ApiError>) -> Void) {
-        // TODO: Call to service
+        let urlString = "https://api.pexels.com/v1/curated?per_page=15"
+        guard let url = URL(string: urlString) else { return }
+        var request = URLRequest(url: url)
+        request.addValue("0rWBGhCRoFiVbbq4duycTLqsvROdrjKqHdGkciUBYdubEU21DoqNC6yY",
+                         forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) {data, result, _ in
+            guard let data else {
+                completion(.failure(.noData))
+                return
+            }
+            do {
+                let decodedResponse = try JSONDecoder().decode(PexelsPhoto.self, from: data)
+                completion(.success(decodedResponse))
+            } catch {
+                completion(.failure(.decodingError))
+            }
+        }.resume()
     }
 }
