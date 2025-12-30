@@ -29,6 +29,10 @@ final class DraggableImageView: UIImageView, UIGestureRecognizerDelegate {
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         self.addGestureRecognizer(pan)
+        
+        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch))
+        pinch.delegate = self
+        self.addGestureRecognizer(pinch)
     }
     
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
@@ -53,6 +57,29 @@ final class DraggableImageView: UIImageView, UIGestureRecognizerDelegate {
         
         self.center = newCenter
         gesture.setTranslation(.zero, in: superview)
+    }
+    
+    @objc private func handlePinch(_ gesture: UIPinchGestureRecognizer) {
+        guard let view = gesture.view else { return }
+            
+        // Pegamos a referência da scrollview subindo na hierarquia
+        let scrollView = self.superview?.superview as? UIScrollView
+
+        if gesture.state == .began {
+            // DESLIGAMOS o gesto do scroll temporariamente
+            // Isso não altera o delegate, apenas desativa o reconhecimento
+            scrollView?.pinchGestureRecognizer?.isEnabled = false
+        }
+        
+        if gesture.state == .changed {
+            view.transform = view.transform.scaledBy(x: gesture.scale, y: gesture.scale)
+            gesture.scale = 1.0
+        }
+        
+        if gesture.state == .ended || gesture.state == .cancelled {
+            // RELIGAMOS o gesto do scroll
+            scrollView?.pinchGestureRecognizer?.isEnabled = true
+        }
     }
     
     @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
