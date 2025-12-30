@@ -8,6 +8,18 @@ final class CanvasPresenter: CanvasPresenting {
     weak var viewController: CanvasViewController?
 
     func openImagePicker() {
-        // TODO: Open bottom sheet
+        let presenter = PexelsPresenter()
+        let interactor = PexelsInteractor(presenter: presenter)
+        let pickerVC = PexelsViewController(interactor: interactor)
+        
+        // Open Bottom Sheet
+        if let sheet = pickerVC.sheetPresentationController {
+            sheet.detents = [.medium(), .large()] // half screen
+            sheet.prefersGrabberVisible = true      // Enable resize control
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.largestUndimmedDetentIdentifier = .medium // Interaction to bottom view enabled
+        }
+        
+        viewController?.present(pickerVC, animated: true)
     }
 }
