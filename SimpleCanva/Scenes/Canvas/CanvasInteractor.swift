@@ -1,16 +1,15 @@
 protocol CanvasInteracting {
-    
+    func didTapAddImageButton()
 }
 
-final class CanvasInteractor {
+final class CanvasInteractor: CanvasInteracting {
     let presenter: CanvasPresenting
     
-    init(presenter: CanvasPresenting) {
+    init(presenter: CanvasPresenter) {
         self.presenter = presenter
     }
-
-}
-
-extension CanvasInteractor: CanvasInteracting {
     
+    func didTapAddImageButton() {
+        presenter.openImagePicker()
+    }
 }

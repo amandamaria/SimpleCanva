@@ -1,13 +1,13 @@
 internal import UIKit
 
 protocol CanvasPresenting {
-    
+    func openImagePicker()
 }
 
-final class CanvasPresenter {
+final class CanvasPresenter: CanvasPresenting {
     weak var viewController: CanvasViewController?
-}
 
-extension CanvasPresenter: CanvasPresenting {
-    
+    func openImagePicker() {
+        // TODO: Open bottom sheet
+    }
 }

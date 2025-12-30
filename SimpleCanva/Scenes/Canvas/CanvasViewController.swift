@@ -86,7 +86,7 @@ private extension CanvasViewController {
 
 private extension CanvasViewController {
     @objc private func didTapAddButton() {
-        // TODO: call interactor
+        interactor.didTapAddImageButton()
     }
 }
 
