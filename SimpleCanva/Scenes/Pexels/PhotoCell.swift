@@ -4,7 +4,7 @@ protocol ImagePickerDelegate: AnyObject {
     func didSelect(item: PexelsPhoto.PexelsPhotoData)
 }
 
-final class PhotoCell: UITableViewCell {
+final class PhotoCell: UICollectionViewCell {
     static let identifier = "PhotoCell"
     private var downloadTask: URLSessionDataTask?
     weak var delegate: ImagePickerDelegate?
@@ -19,16 +19,8 @@ final class PhotoCell: UITableViewCell {
         return iv
     }()
 
-    private let titleLabel: some UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.numberOfLines = 2
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect = .zero) {
+        super.init(frame: frame)
         setupUI()
     }
 
@@ -36,22 +28,16 @@ final class PhotoCell: UITableViewCell {
 
     private func setupUI() {
         contentView.addSubview(photoImageView)
-        contentView.addSubview(titleLabel)
 
         NSLayoutConstraint.activate([
             photoImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             photoImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             photoImageView.widthAnchor.constraint(equalToConstant: 80),
-            photoImageView.heightAnchor.constraint(equalToConstant: 60),
-
-            titleLabel.leadingAnchor.constraint(equalTo: photoImageView.trailingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            photoImageView.heightAnchor.constraint(equalToConstant: 80)
         ])
     }
 
     func configure(with photo: PexelsPhoto.PexelsPhotoData) {
-        titleLabel.text = photo.alt
         photoImageView.image = nil
         downloadTask?.cancel()
 

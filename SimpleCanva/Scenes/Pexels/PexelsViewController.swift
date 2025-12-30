@@ -1,7 +1,19 @@
 internal import UIKit
 
 final class PexelsViewController: UIViewController{
-    private let tableView = UITableView()
+    private let tableView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = 2
+        layout.minimumInteritemSpacing = 2
+        layout.sectionInset = UIEdgeInsets(top: 24, left: 0, bottom: 16, right: 16)
+        let itemWidth = 80
+        
+        layout.itemSize = CGSize(width: itemWidth, height: itemWidth) // Itens quadrados
+
+        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+    }()
+    
     private let interactor: PexelsInteracting
     private var photos: [PexelsPhoto.PexelsPhotoData] = []
     weak var delegate: ImagePickerDelegate?
@@ -22,26 +34,25 @@ final class PexelsViewController: UIViewController{
     
     func showData(_ photos: [PexelsPhoto.PexelsPhotoData]) {
         self.photos = photos
-        
         tableView.reloadData()
     }
 }
 
-extension PexelsViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return photos.count
+extension PexelsViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        photos.count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: PhotoCell.identifier, for: indexPath) as? PhotoCell else {
-                    return UITableViewCell()
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = tableView.dequeueReusableCell(withReuseIdentifier: PhotoCell.identifier, for: indexPath) as? PhotoCell else {
+                    return UICollectionViewCell()
                 }
         cell.delegate = delegate
         cell.configure(with: photos[indexPath.row])
         return cell
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedImg = photos[indexPath.row]
         delegate?.didSelect(item: selectedImg)
         dismiss(animated: true)
@@ -54,7 +65,6 @@ private extension PexelsViewController {
         tableView.frame = view.bounds
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(PhotoCell.self, forCellReuseIdentifier: PhotoCell.identifier)
-        tableView.rowHeight = 80
+        tableView.register(PhotoCell.self, forCellWithReuseIdentifier: PhotoCell.identifier)
     }
 }
