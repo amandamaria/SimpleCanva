@@ -16,8 +16,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         // 2. CORREÇÃO: Usa o novo inicializador que vincula a window à scene
         window = UIWindow(windowScene: windowScene)
+        let presenter = CanvasPresenter()
+        let interactor = CanvasInteractor(presenter: presenter)
+        let viewController = CanvasViewController(interactor: interactor)
+        presenter.viewController = viewController
         
-        window?.rootViewController = MainViewController()
+        window?.rootViewController = viewController
         window?.makeKeyAndVisible()
     }
 
