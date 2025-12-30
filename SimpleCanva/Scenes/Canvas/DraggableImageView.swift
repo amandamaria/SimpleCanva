@@ -1,14 +1,32 @@
 internal import UIKit
 
+protocol DraggableImageViewDelegate: AnyObject {
+    func didReachCenterX()
+    func didReachCenterY()
+    func didSnapFinish()
+}
+
 final class DraggableImageView: UIImageView, UIGestureRecognizerDelegate {
+    
+    weak var delegate: DraggableImageViewDelegate?
     
     var isSelected: Bool = false {
         didSet {
             layer.borderWidth = isSelected ? 3 : 0
             layer.borderColor = UIColor.systemBlue.cgColor
+            selectionOverlay.isHidden = !isSelected
         }
     }
-    private let snapThreshold: CGFloat = 20.0
+    
+    private let selectionOverlay: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.2)
+        view.isHidden = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let snapThreshold: CGFloat = 10.0
     
     init(image: UIImage?, frame: CGRect) {
         super.init(frame: frame)
@@ -18,6 +36,7 @@ final class DraggableImageView: UIImageView, UIGestureRecognizerDelegate {
         self.clipsToBounds = true
         self.layer.cornerRadius = 10
         
+        setupOverlay()
         setupGesture()
     }
     
@@ -42,19 +61,38 @@ final class DraggableImageView: UIImageView, UIGestureRecognizerDelegate {
         // Nova posição baseada no movimento do dedo
         var newCenter = CGPoint(x: self.center.x + translation.x,
                                 y: self.center.y + translation.y)
+        let reachCenterX = abs(newCenter.x - superview.bounds.midX) < snapThreshold
+        let reachCenterY = abs(newCenter.y - superview.bounds.midY) < snapThreshold
+        
+        // Esconde as linhas quando o gesto termina
+        if gesture.state == .changed && !(reachCenterX || reachCenterY) {
+            delegate?.didSnapFinish()
+        }
         
         // --- LÓGICA DE SNAP (REQUISITO DO PROJETO) ---
         // Se estiver perto do centro horizontal do canvas, "gruda"
-        if abs(newCenter.x - superview.center.x) < snapThreshold {
-            newCenter.x = superview.center.x
-            // Aqui você poderia ativar um feedback visual (vibração ou linha)
+        if reachCenterX {
+            delegate?.didReachCenterX()
         }
         
         // Se estiver perto do centro vertical do canvas, "gruda"
-        if abs(newCenter.y - superview.center.y) < snapThreshold {
-            newCenter.y = superview.center.y
+        if reachCenterY {
+            delegate?.didReachCenterY()
         }
         
+        // Esconde as linhas quando o gesto termina
+        if gesture.state == .ended || gesture.state == .cancelled {
+            delegate?.didSnapFinish()
+            if reachCenterX {
+                newCenter.x = superview.center.x
+            }
+            
+            if reachCenterY {
+                newCenter.y = superview.bounds.midY
+            }
+        }
+        
+        updateSelection()
         self.center = newCenter
         gesture.setTranslation(.zero, in: superview)
     }
@@ -83,15 +121,32 @@ final class DraggableImageView: UIImageView, UIGestureRecognizerDelegate {
     }
     
     @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
+        updateSelection()
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            return true
+    }
+}
+
+private extension DraggableImageView {
+    func setupOverlay() {
+        addSubview(selectionOverlay)
+        
+        NSLayoutConstraint.activate([
+            selectionOverlay.topAnchor.constraint(equalTo: topAnchor),
+            selectionOverlay.leadingAnchor.constraint(equalTo: leadingAnchor),
+            selectionOverlay.trailingAnchor.constraint(equalTo: trailingAnchor),
+            selectionOverlay.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+    }
+    
+    func updateSelection() {
         // Primeiro, desmarca todos os outros itens no mesmo canvas
         superview?.subviews.forEach { ($0 as? DraggableImageView)?.isSelected = false }
         // Seleciona este
         self.isSelected = true
         // Traz para a frente de todos os outros
         superview?.bringSubviewToFront(self)
-    }
-    
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-            return true
     }
 }

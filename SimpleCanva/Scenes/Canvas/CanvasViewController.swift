@@ -27,6 +27,22 @@ final class CanvasViewController: UIViewController {
         return button
     }()
     
+    private let verticalGuideLine: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBlue
+        view.isHidden = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let horizontalGuideLine: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBlue
+        view.isHidden = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     let interactor: CanvasInteracting
     
     init(interactor: CanvasInteracting) {
@@ -45,6 +61,7 @@ final class CanvasViewController: UIViewController {
         setupConstraints()
         setupActions()
         setupCanvasGestures()
+        setupGuideLines()
     }
     
 }
@@ -91,6 +108,25 @@ private extension CanvasViewController {
         tapOutside.cancelsTouchesInView = false
         canvasView.addGestureRecognizer(tapOutside)
     }
+    
+    func setupGuideLines() {
+        canvasView.addSubview(verticalGuideLine)
+        canvasView.addSubview(horizontalGuideLine)
+        
+        NSLayoutConstraint.activate([
+            // Linha vertical ocupa toda a altura e fica no meio
+            verticalGuideLine.centerXAnchor.constraint(equalTo: canvasView.centerXAnchor),
+            verticalGuideLine.widthAnchor.constraint(equalToConstant: 1),
+            verticalGuideLine.topAnchor.constraint(equalTo: canvasView.topAnchor),
+            verticalGuideLine.bottomAnchor.constraint(equalTo: canvasView.bottomAnchor),
+            
+            // Linha horizontal ocupa toda a largura e fica no meio
+            horizontalGuideLine.centerYAnchor.constraint(equalTo: canvasView.centerYAnchor),
+            horizontalGuideLine.heightAnchor.constraint(equalToConstant: 1),
+            horizontalGuideLine.leadingAnchor.constraint(equalTo: canvasView.leadingAnchor),
+            horizontalGuideLine.trailingAnchor.constraint(equalTo: canvasView.trailingAnchor)
+        ])
+    }
 
     @objc private func handleCanvasTap(_ gesture: UITapGestureRecognizer) {
         // Identify when the gestures was on canvas (not on subview/imagem)
@@ -122,7 +158,7 @@ extension CanvasViewController: ImagePickerDelegate {
         guard let url = URL(string: src) else { return }
 
         URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
-            guard let data = data, let image = UIImage(data: data), let self = self else { return }
+            guard let data = data, let image = UIImage(data: data), let self else { return }
             
             DispatchQueue.main.async {
                 let visibleRect = self.scrollView.contentOffset
@@ -134,6 +170,7 @@ extension CanvasViewController: ImagePickerDelegate {
                                    height: itemSize)
                 
                 let newItem = DraggableImageView(image: image, frame: frame)
+                newItem.delegate = self
                 
                 self.canvasView.addSubview(newItem)
             }
@@ -141,3 +178,17 @@ extension CanvasViewController: ImagePickerDelegate {
     }
 }
 
+extension CanvasViewController: DraggableImageViewDelegate {
+    func didSnapFinish() {
+        horizontalGuideLine.isHidden = true
+        verticalGuideLine.isHidden = true
+    }
+    
+    func didReachCenterX() {
+        verticalGuideLine.isHidden = false
+    }
+    
+    func didReachCenterY() {
+        horizontalGuideLine.isHidden = false
+    }
+}
