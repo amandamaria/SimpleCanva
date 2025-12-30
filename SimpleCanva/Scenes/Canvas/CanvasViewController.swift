@@ -11,6 +11,9 @@ final class CanvasViewController: UIViewController {
         scroll.backgroundColor = .systemGray6
         scroll.minimumZoomScale = 0.5
         scroll.maximumZoomScale = 2.0
+        scroll.showsHorizontalScrollIndicator = true
+        scroll.showsVerticalScrollIndicator = true
+        scroll.bounces = true
         return scroll
     }()
     
@@ -105,11 +108,15 @@ private extension CanvasViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
+            // 2. Canvas preso ao Content Layout Guide (isso define a área rolável)
+            canvasView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
             canvasView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
             canvasView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
-            canvasView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
-            canvasView.heightAnchor.constraint(equalTo: scrollView.heightAnchor, multiplier: 0.5),
-            canvasView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            canvasView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            
+            // 3. DEFINIR O TAMANHO REAL (Se não houver altura, o scroll vertical morre)
+            canvasView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 1.2),
+            canvasView.heightAnchor.constraint(equalTo: scrollView.heightAnchor, multiplier: 1.2),
             
             addItemButton.widthAnchor.constraint(equalToConstant: 56),
             addItemButton.heightAnchor.constraint(equalToConstant: 56),
@@ -183,9 +190,9 @@ extension CanvasViewController: ImagePickerDelegate {
             guard let data = data, let image = UIImage(data: data), let self else { return }
             
             DispatchQueue.main.async {
-                let visibleRect = self.scrollView.contentOffset
-                let frame = CGRect(x: visibleRect.x + 50,
-                                   y: visibleRect.y + 50,
+                let visibleRect = self.canvasView.layer.visibleRect
+                let frame = CGRect(x: visibleRect.midX,
+                                   y: visibleRect.midY,
                                    width: CGFloat(item.width/20),
                                    height: CGFloat(item.height/20))
                 
