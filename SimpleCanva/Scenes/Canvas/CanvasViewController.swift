@@ -102,7 +102,12 @@ extension CanvasViewController: ImagePickerDelegate {
                 let visibleRect = self.scrollView.contentOffset
                 let itemSize: CGFloat = 150
                 
-                let newItem = UIImageView(image: image)
+                let frame = CGRect(x: visibleRect.x + 50,
+                                   y: visibleRect.y + 50,
+                                   width: itemSize,
+                                   height: itemSize)
+                
+                let newItem = DraggableImageView(image: image, frame: frame)
                 
                 self.canvasView.addSubview(newItem)
             }
