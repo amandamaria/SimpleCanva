@@ -1,7 +1,7 @@
 internal import UIKit
 
 final class PexelsViewController: UIViewController{
-    private let tableView: UICollectionView = {
+    private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 2
@@ -29,12 +29,13 @@ final class PexelsViewController: UIViewController{
     
     override func viewDidLoad() {
         interactor.loadData()
+        collectionView.backgroundColor = .black
         setupTableView()
     }
     
     func showData(_ photos: [PexelsPhoto.PexelsPhotoData]) {
         self.photos = photos
-        tableView.reloadData()
+        collectionView.reloadData()
     }
 }
 
@@ -44,7 +45,7 @@ extension PexelsViewController: UICollectionViewDataSource, UICollectionViewDele
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = tableView.dequeueReusableCell(withReuseIdentifier: PhotoCell.identifier, for: indexPath) as? PhotoCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCell.identifier, for: indexPath) as? PhotoCell else {
                     return UICollectionViewCell()
                 }
         cell.delegate = delegate
@@ -61,10 +62,10 @@ extension PexelsViewController: UICollectionViewDataSource, UICollectionViewDele
 
 private extension PexelsViewController {
     func setupTableView() {
-        view.addSubview(tableView)
-        tableView.frame = view.bounds
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.register(PhotoCell.self, forCellWithReuseIdentifier: PhotoCell.identifier)
+        view.addSubview(collectionView)
+        collectionView.frame = view.bounds
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(PhotoCell.self, forCellWithReuseIdentifier: PhotoCell.identifier)
     }
 }
