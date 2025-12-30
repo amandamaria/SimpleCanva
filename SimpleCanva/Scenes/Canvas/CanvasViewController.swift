@@ -17,7 +17,7 @@ final class CanvasViewController: UIViewController {
     private let canvasView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .gray
+        view.backgroundColor = .lightGray
         return view
     }()
     
@@ -29,7 +29,7 @@ final class CanvasViewController: UIViewController {
     
     private let verticalGuideLine: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemBlue
+        view.backgroundColor = .yellow
         view.isHidden = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -37,7 +37,7 @@ final class CanvasViewController: UIViewController {
     
     private let horizontalGuideLine: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemBlue
+        view.backgroundColor = .yellow
         view.isHidden = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -154,20 +154,18 @@ private extension CanvasViewController {
 }
 
 extension CanvasViewController: ImagePickerDelegate {
-    func didSelect(image src: String) {
-        guard let url = URL(string: src) else { return }
+    func didSelect(item: PexelsPhoto.PexelsPhotoData) {
+        guard let url = URL(string: item.src.url) else { return }
 
         URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
             guard let data = data, let image = UIImage(data: data), let self else { return }
             
             DispatchQueue.main.async {
                 let visibleRect = self.scrollView.contentOffset
-                let itemSize: CGFloat = 150
-                
                 let frame = CGRect(x: visibleRect.x + 50,
                                    y: visibleRect.y + 50,
-                                   width: itemSize,
-                                   height: itemSize)
+                                   width: CGFloat(item.width/20),
+                                   height: CGFloat(item.height/20))
                 
                 let newItem = DraggableImageView(image: image, frame: frame)
                 newItem.delegate = self
@@ -184,11 +182,13 @@ extension CanvasViewController: DraggableImageViewDelegate {
         verticalGuideLine.isHidden = true
     }
     
-    func didReachCenterX() {
+    func didReachCenterX(x: CGFloat) {
         verticalGuideLine.isHidden = false
+        verticalGuideLine.frame.origin.x = x
     }
     
-    func didReachCenterY() {
+    func didReachCenterY(y: CGFloat) {
         horizontalGuideLine.isHidden = false
+        horizontalGuideLine.frame.origin.y = y
     }
 }

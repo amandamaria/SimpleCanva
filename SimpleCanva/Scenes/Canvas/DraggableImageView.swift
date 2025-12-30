@@ -1,8 +1,8 @@
 internal import UIKit
 
 protocol DraggableImageViewDelegate: AnyObject {
-    func didReachCenterX()
-    func didReachCenterY()
+    func didReachCenterX(x: CGFloat)
+    func didReachCenterY(y: CGFloat)
     func didSnapFinish()
 }
 
@@ -61,8 +61,17 @@ final class DraggableImageView: UIImageView, UIGestureRecognizerDelegate {
         // Nova posição baseada no movimento do dedo
         var newCenter = CGPoint(x: self.center.x + translation.x,
                                 y: self.center.y + translation.y)
-        let reachCenterX = abs(newCenter.x - superview.bounds.midX) < snapThreshold
-        let reachCenterY = abs(newCenter.y - superview.bounds.midY) < snapThreshold
+        
+        // Definição do tamanho do grid
+        let gridX: CGFloat = 50
+        let gridY: CGFloat = 50
+        
+        // Cálculo do ponto do grid mais próximo
+        let closestGridX = (newCenter.x / gridX).rounded() * gridX
+        let closestGridY = (newCenter.y / gridY).rounded() * gridY
+        
+        let reachCenterX = abs(newCenter.x - closestGridX) < snapThreshold
+        let reachCenterY = abs(newCenter.y - closestGridY) < snapThreshold
         
         // Esconde as linhas quando o gesto termina
         if gesture.state == .changed && !(reachCenterX || reachCenterY) {
@@ -72,27 +81,29 @@ final class DraggableImageView: UIImageView, UIGestureRecognizerDelegate {
         // --- LÓGICA DE SNAP (REQUISITO DO PROJETO) ---
         // Se estiver perto do centro horizontal do canvas, "gruda"
         if reachCenterX {
-            delegate?.didReachCenterX()
+            delegate?.didReachCenterX(x: closestGridX)
         }
         
         // Se estiver perto do centro vertical do canvas, "gruda"
         if reachCenterY {
-            delegate?.didReachCenterY()
+            delegate?.didReachCenterY(y: closestGridY)
         }
         
         // Esconde as linhas quando o gesto termina
         if gesture.state == .ended || gesture.state == .cancelled {
             delegate?.didSnapFinish()
             if reachCenterX {
-                newCenter.x = superview.center.x
+                newCenter.x = closestGridX
             }
             
             if reachCenterY {
-                newCenter.y = superview.bounds.midY
+                newCenter.y = closestGridY
             }
+            isSelected = false
+        } else {
+            isSelected = true
         }
         
-        updateSelection()
         self.center = newCenter
         gesture.setTranslation(.zero, in: superview)
     }
@@ -117,6 +128,7 @@ final class DraggableImageView: UIImageView, UIGestureRecognizerDelegate {
         if gesture.state == .ended || gesture.state == .cancelled {
             // RELIGAMOS o gesto do scroll
             scrollView?.pinchGestureRecognizer?.isEnabled = true
+            isSelected = false
         }
     }
     

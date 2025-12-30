@@ -42,8 +42,8 @@ extension PexelsViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedUrl = photos[indexPath.row].src.small
-        delegate?.didSelect(image: selectedUrl)
+        let selectedImg = photos[indexPath.row]
+        delegate?.didSelect(item: selectedImg)
         dismiss(animated: true)
     }
 }

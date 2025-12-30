@@ -1,7 +1,7 @@
 internal import UIKit
 
 protocol ImagePickerDelegate: AnyObject {
-    func didSelect(image src: String)
+    func didSelect(item: PexelsPhoto.PexelsPhotoData)
 }
 
 final class PhotoCell: UITableViewCell {
@@ -55,7 +55,7 @@ final class PhotoCell: UITableViewCell {
         photoImageView.image = nil
         downloadTask?.cancel()
 
-        guard let url = URL(string: photo.src.small) else { return }
+        guard let url = URL(string: photo.src.url) else { return }
 
         downloadTask = URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
             if let data = data, let image = UIImage(data: data) {
